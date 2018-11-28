@@ -1,0 +1,31 @@
+<html>
+<body>
+<div style="background:red;text-align:center;">
+	<h1>FAIL</h1>
+	{% if numero is defined %}
+	<h2>Le badge numero {{ numero }} existe déjà :</h2>
+	<h3>Voulez vous ?</h3>
+	<ul>
+		<li>
+			<p>Conservez : {{ ancien_nom }} {{ ancien_prenom }} {{ numero }}<p>
+			<form action="/" method="GET">
+				<button type="submit">CONSERVER</button>
+			</form>
+		</li>
+		<li>
+			<p>Remplacez par : {{ nom }} {{ prenom }} {{ numero }}<p>
+			<form action="/override" method="GET">
+				<input type="hidden" value="{{ nom }}" name="nom">
+				<input type="hidden" value="{{ prenom }}" name="prenom">
+				<input type="hidden" value="{{ numero }}" name="id_badge">
+				<button type="submit">REMPLACER</button>
+			</form>
+		</li>
+	</ul>
+	{% else %}
+	<h2> {{ message }} </h2>
+	{% endif %}
+
+</div>
+</body>
+</html>

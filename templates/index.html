@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="sqlite-viewer/css/main.css"/>
+    <meta charset="utf-8">
+    <meta name="description" content="sqlite file viewer">
+    <meta name="keywords" content="sqlite,viewer,db,database,online">
+    <meta name="author" content="Juraj Novák">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite Viewer</title>
+    <link href="sqlite-viewer/css/bootstrap.min.css" rel="stylesheet">
+    <link href="sqlite-viewer/css/select2.css" rel="stylesheet">
+    <link href="sqlite-viewer/css/select2-bootstrap.css" rel="stylesheet">
+    <link href="sqlite-viewer/css/main.css" rel="stylesheet">
+    <link rel="image_src" href="sqlite-viewer/img/icon.png"/>
+</head>
+<body>
+
+<img src="sqlite-viewer/img/icon.png" style="display: none;"/>
+
+<div id="main-container" class="container-fluid">
+    <div id="header">
+        <div class="row">
+            <div class="col-xs-4">
+                <img src="sqlite-viewer/img/logo.svg" class="img-responsive pull-left" style="margin-right: 16px;"/>
+                <h3>Stand Badgeage</h3>
+                <p>Custom MiNET</p>
+            </div>
+
+            <div class="col-xs-2">
+		    <form method="GET" action="/add">
+			    <label for="nom">Nom</label>
+			    <input class="form-control select2" id="nom" type="text" name="nom" required>
+			    <label for="prenom">Prénom</label>
+			    <input class="form-control select2" id="prenom" type="text" name="prenom" required>
+			    <label for="id_badge">BADGE</label>
+			    <input class="form-control select2" disabled="disabled" id="id_badge" type="text" name="id_badge" required>
+			    <button class="btn btn-sm btn-primary" style="background:green" id="btn_badge" type="button" onclick="retrievebadge()">Badge</button>
+			    <button class="btn btn-sm btn-primary" style="background:red" type="submit" id="btn_submit" disabled="disabled">Soumettre</button>
+		    </form>
+            </div>
+	    <div class="col-xs-4">
+		    <h2 id="en_cours" style="font-color:red;"></h2>
+	    </div>
+        </div>
+    </div>
+
+    <div id="compat-error" class="alert alert-danger" style="display: none">
+        <div class="clearfix">
+            <img src="sqlite-viewer/img/seriously.png" class="img-responsive pull-left"/>
+            <p>Sorry but your browser does not support some of new HTML5 features! Try using latest version of Google Chrome or
+                Firefox.</p>
+        </div>
+    </div>
+
+    <div id="output-box" class="container-fluid">
+	<div class="row">
+		<div>
+			<h2>Le SQL ne permet pas d'éditer la BDD</h2>
+		</div>
+        <div class="row">
+            <div class="col-md-12">
+                <select id="tables" class="form-control select2" title="Table"></select><br />
+            </div>
+	    <div class="col-md-10">
+                <div id="sql-editor" class="panel panel-default form-control"></div>
+            </div>
+
+            <div class="col-md-2">
+                <div class=btn-group>
+                    <button class="btn btn-sm btn-primary" id="sql-run" type="submit" onclick="executeSql(this)">Execute</button>
+                    <button class="btn btn-sm btn-primary" id="sql-export" type="submit" onclick="exportSql(this)">Execute and Export to CSV</button>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+
+                <div style="overflow-x: auto">
+                    <table id="data" class="table table-condensed table-bordered table-hover table-striped">
+                        <thead>
+                        <tr></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-danger box" id="error" style="display: none"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="alert alert-danger box" style="display: none"></div>
+    <div class="alert alert-warning box" style="display: none"></div>
+    <div class="alert alert-info box" style="display: none"></div>
+</div>
+
+<div id="bottom-bar" class="text-center">
+    <div class="inline">
+        <button class="btn btn-default btn-sm " id="page-prev" type="submit" onclick="setPage(this, false)"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+        <a href="javascript:void(0)" data-toggle="tooltip" data-placement="top" onclick="setPage(this)" id="pager"></a>
+        <button class="btn btn-default btn-sm " id="page-next" type="submit" onclick="setPage(this, true)"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+    </div>
+</div>
+
+<div class="container">
+    <footer>
+        &copy; 2015, Juraj Novák
+    </footer>
+</div>
+
+<script src="sqlite-viewer/js/jquery-1.11.3.min.js"></script>
+<script src="sqlite-viewer/js/filereader.js"></script>
+<script src="sqlite-viewer/js/sql.js"></script>
+<script src="sqlite-viewer/js/select2.min.js"></script>
+<script src="sqlite-viewer/js/ace/ace.js"></script>
+<script src="sqlite-viewer/js/bootstrap.min.js"></script>
+<script src="sqlite-viewer/js/mindmup-editabletable.js"></script>
+<script src="sqlite-viewer/js/main.js?v=8"></script>
+	<script>function retrievebadge(){
+		document.getElementById("en_cours").innerHTML="Passer le badge sur la borne";
+		document.getElementById("btn_badge").style="background:orange;";
+		document.getElementById("btn_badge").disabled=true;
+		document.getElementById("btn_submit").disabled=true;
+		document.getElementById("btn_submit").style="background:red;";
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			document.getElementById("id_badge").value = xhttp.responseText;
+			document.getElementById("id_badge").disabled=false;
+			document.getElementById("btn_submit").style="background:green;";
+			document.getElementById("btn_submit").disabled=false;
+			document.getElementById("btn_badge").style="background:green;";
+			document.getElementById("btn_badge").disabled=false;
+			document.getElementById("en_cours").innerHTML="";
+		    }
+		};
+		xhttp.open("GET", "/badge", true);
+		xhttp.send();
+	}
+	</script>
+</body>
+</html>
