@@ -6,7 +6,8 @@ import sqlite3
 class SQLiteOutput:
 
     TABLE_SCHEMA = {"badge" : "CREATE TABLE IF NOT EXISTS badge\
-                        (Id INTEGER PRIMARY KEY,\
+                        (uniqueid INTEGER PRIMARY KEY,\
+                        Id INTEGER, \
                         Nom TEXT,\
                         Prenom TEXT,\
                         Date DATE)" }
@@ -52,3 +53,9 @@ class SQLiteOutput:
             cursor=cnx.cursor()
             cursor.execute("SELECT {keys} FROM {table} WHERE {val_placeholder}".format(**query))
             return dict(zip(list(key_set),cursor.fetchall()[0]))
+
+    def select_max_unique_id(self):
+        with sqlite3.connect(self.db) as cnx:
+            cursor=cnx.cursor()
+            cursor.execute("SELECT MAX(uniqueid) FROM badge")
+            return cursor.fetchall()[0]

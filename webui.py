@@ -7,6 +7,7 @@ from classes import SQLiteOutput
 from datetime import datetime
 import sqlite3
 
+
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
@@ -42,7 +43,11 @@ def update_table():
     nom = request.args.get("nom")
     id_badge = request.args.get("id_badge")
     try:
-        sql.insert({"Prenom":prenom,"Nom":nom,"Id":id_badge,"Date":datetime.now().isoformat()})
+        max_uniqueid = sql.select_max_unique_id()[0]
+        if max_uniqueid == None:
+            max_uniqueid = 1
+        print(max_uniqueid)
+        sql.insert({"uniqueid":(max_uniqueid+1),"Prenom":prenom,"Nom":nom,"Id":id_badge,"Date":datetime.now().isoformat()})
         return render_template("success.html",prenom = prenom,nom = nom,id_badge = id_badge)
     except sqlite3.IntegrityError :
         old = sql.select({"Id":id_badge},{"Prenom","Nom"})
